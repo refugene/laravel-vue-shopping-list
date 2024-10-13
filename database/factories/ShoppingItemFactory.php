@@ -16,12 +16,6 @@ class ShoppingItemFactory extends Factory
      */
     public function definition(): array
     {
-        $shoppingItems = [
-            'apple', 'banana', 'carrot', 'milk', 'bread', 'tomato', 'chicken', 'rice', 'eggs', 'butter'
-        ];
-
-        return [
-            'name' => $this->faker->randomElement($shoppingItems),
-        ];
+        return [];
     }
 }

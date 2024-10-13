@@ -20,6 +20,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Seed the ShoppingItem table with 10 items
-        ShoppingItem::factory(10)->create();
+        $shoppingItems = [
+            'apple', 'banana', 'carrot', 'milk', 'bread', 'tomato', 'chicken', 'rice', 'eggs', 'butter'
+        ];
+        foreach ($shoppingItems as $item) {
+            ShoppingItem::factory()->create(['name' => $item]);
+        }
     }
 }
