@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/shopping-list', [ShoppingListController::class, 'index']);
+Route::get('/shopping-list', [ShoppingListController::class, 'index'])->name('shoppingList.index');
+Route::post('/shopping-list', [ShoppingListController::class, 'store'])->name('shoppingList.store');
 
 require __DIR__.'/auth.php';
