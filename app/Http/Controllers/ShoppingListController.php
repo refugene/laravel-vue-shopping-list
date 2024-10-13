@@ -28,4 +28,12 @@ class ShoppingListController extends Controller
 
         return redirect()->route('shoppingList.index')->with('success', 'Item added successfully!');
     }
+
+    public function destroy($id)
+    {
+        $item = ShoppingItem::findOrFail($id);
+        $item->delete();
+        return redirect()->route('shoppingList.index')->with('success', 'Item deleted successfully!');
+    }
+
 }

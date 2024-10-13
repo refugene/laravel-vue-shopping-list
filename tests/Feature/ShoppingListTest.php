@@ -34,3 +34,16 @@ it('cannot add a duplicate shopping list item', function () {
     // Assert: Check that only one instance of the item exists in the database
     $this->assertCount(1, ShoppingItem::where('name', 'apple')->get());
 });
+
+it('can delete a shopping list item', function () {
+    // Arrange: Create a shopping item in the database
+    $item = ShoppingItem::create([
+        'name' => 'Test Item'
+    ]);
+    // Act: Send a DELETE request to delete the item
+    $response = $this->delete(route('shoppingList.destroy', $item->id));
+    // Assert: Check if the response redirects back to the shopping list page
+    $response->assertRedirect(route('shoppingList.index'));
+    // Assert: Check if the item was deleted from the database
+    $this->assertDatabaseMissing('shopping_items', ['id' => $item->id]);
+});

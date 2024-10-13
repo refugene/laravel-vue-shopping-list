@@ -1,6 +1,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import { Inertia } from '@inertiajs/inertia';
 
 // Props coming from the controller (shopping items and flash messages)
 const props = defineProps({
@@ -19,6 +20,17 @@ const submitForm = () => {
         },
     });
 };
+
+const deleteItem = (id) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+        Inertia.delete(route('shoppingList.destroy', id), {
+            onSuccess: () => {
+                console.log('Item deleted successfully!');
+            },
+        });
+    }
+};
+
 </script>
 
 <template>
@@ -46,7 +58,18 @@ const submitForm = () => {
 
         <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
         <ul v-else>
-            <li v-for="item in shoppingItems" :key="item.id">{{ item.name }}</li>
+            <li
+                v-for="item in shoppingItems"
+                :key="item.id"
+                class="flex justify-between items-center rounded-full px-3 py-2 my-1 border border-blue-500"
+            >
+                {{ item.name }}
+
+                <!-- Delete Button -->
+                <button @click="deleteItem(item.id)" class="bg-red-500 text-white px-2 py-1 rounded-full">
+                    Delete
+                </button>
+            </li>
         </ul>
     </GuestLayout>
 </template>
