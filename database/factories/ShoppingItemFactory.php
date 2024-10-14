@@ -16,6 +16,11 @@ class ShoppingItemFactory extends Factory
      */
     public function definition(): array
     {
-        return [];
+        return [
+            'name' => $this->faker->word(),
+            'is_bought' => $this->faker->randomElement([0, 1]),
+            'sort_order' => $this->faker->numberBetween(1, 10),
+            'price' => $this->faker->numberBetween(1, 1000),
+        ];
     }
 }

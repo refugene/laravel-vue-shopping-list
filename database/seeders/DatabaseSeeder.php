@@ -24,7 +24,10 @@ class DatabaseSeeder extends Seeder
             'apple', 'banana', 'carrot', 'milk', 'bread', 'tomato', 'chicken', 'rice', 'eggs', 'butter'
         ];
         foreach ($shoppingItems as $item) {
-            ShoppingItem::factory()->create(['name' => $item]);
+            ShoppingItem::factory()->create([
+                // Override the 'name' from the factory
+                'name' => $item,
+            ]);
         }
     }
 }

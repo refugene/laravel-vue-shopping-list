@@ -23,6 +23,8 @@ console.log(shoppingItems);
 
 const form = useForm({
     name: '',
+    priceInPounds: '', // For user input in pounds
+    price: 0, // Price in pence, used for the request
 });
 
 const updateForm = useForm({});
@@ -30,6 +32,9 @@ const updateForm = useForm({});
 const deleteForm = useForm({});
 
 const addItem = () => {
+    // Convert price from pounds to pence
+    form.price = Math.round(form.priceInPounds * 100);
+
     form.post(route('shoppingList.store'), {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -103,16 +108,23 @@ const deleteItem = (id) => {
 
         <!-- Add a New Item -->
         <form @submit.prevent="addItem" class="mt-2">
-            <div class="flex items-center">
-                <InputLabel value="New Item:" class="mr-2"/>
-                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mr-2" />
-                <PrimaryButton :disabled="form.processing">
+            <div class="flex flex-col">
+                <h2 class="text-xl font-bold">New Item</h2>
+                <InputLabel value="Name:" />
+                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mb-2" />
+
+                <!-- Price Input in Pounds -->
+                <InputLabel value="Price (£):" />
+                <TextInput v-model="form.priceInPounds" :modelValue="form.priceInPounds.toString()" name="price" id="price" required type="number" min="0" step="0.01" class="mb-2" />
+
+                <PrimaryButton :disabled="form.processing" class="my-2 w-1/4 justify-center">
                     Add
                 </PrimaryButton>
             </div>
 
             <!-- Validation Errors -->
             <InputError :message="form.errors.name" />
+            <InputError :message="form.errors.price" />
         </form>
 
         <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
@@ -123,7 +135,7 @@ const deleteItem = (id) => {
                     class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
                 >
                     <div class="flex-grow break-words min-w-0">
-                        {{ element.name }}
+                        {{ element.name }} - £{{ (element.price / 100).toFixed(2) }}
                     </div>
 
                     <div class="flex space-x-2">

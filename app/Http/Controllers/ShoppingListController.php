@@ -23,9 +23,10 @@ class ShoppingListController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255|unique:shopping_items,name',
+            'price' => 'required|integer|min:0'
         ]);
 
-        $newItem = ShoppingItem::create($request->only('name'));
+        $newItem = ShoppingItem::create($request->only('name', 'price'));
 
         return inertia('ShoppingList/Index', [
             'newItem' => $newItem,

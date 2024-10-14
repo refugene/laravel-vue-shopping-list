@@ -11,6 +11,7 @@ class ShoppingItem extends Model
     protected $fillable = [
         'name',
         'is_picked_up',
-        'sort_order'
+        'sort_order',
+        'price'
     ];
 }
