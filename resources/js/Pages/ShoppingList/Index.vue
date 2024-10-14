@@ -1,12 +1,13 @@
 <script setup>
+
 import { useForm } from '@inertiajs/vue3';
+import {ref} from "vue";
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import InputError from "@/Components/InputError.vue";
-import { Inertia } from '@inertiajs/inertia';
 
 // Props coming from the controller (shopping items and flash messages)
 const props = defineProps({
@@ -14,23 +15,58 @@ const props = defineProps({
     flash: Object,
 });
 
+// Use ref for reactivity
+const shoppingItems = ref(props.shoppingItems);
+
 const form = useForm({
     name: '',
 });
 
-const submitForm = () => {
+const updateForm = useForm({});
+
+const deleteForm = useForm({});
+
+const addItem = () => {
     form.post(route('shoppingList.store'), {
-        onSuccess: () => {
+        preserveScroll: true,
+        onSuccess: (page) => {
             form.reset();
+            // Add the new item
+            if (page.props.newItem) {
+                shoppingItems.value.push(page.props.newItem);
+            }
         },
     });
 };
 
+// Toggle the bought status of a shopping list item
+const toggleBought = (id) => {
+    const item = shoppingItems.value.find(item => item.id === id);
+    if (item) {
+        updateForm.patch(route('shoppingList.toggleBought', id), {
+            data: { is_bought: !item.is_bought },
+            preserveScroll: true,
+            onSuccess: () => {
+                item.is_bought = !item.is_bought;
+            },
+            onError: (errors) => {
+                console.error("Failed to update the item status:", errors);
+            }
+        });
+    }
+};
+
+// Delete shopping list item
 const deleteItem = (id) => {
     if (confirm('Are you sure you want to delete this item?')) {
-        Inertia.delete(route('shoppingList.destroy', id), {
+        deleteForm.delete(route('shoppingList.destroy', id), {
+            preserveScroll: true,
             onSuccess: () => {
-                console.log('Item deleted successfully!');
+                // Remove the item from the list
+                shoppingItems.value = shoppingItems.value.filter(item => item.id !== id);
+            },
+            onError: (errors) => {
+                console.error('Failed to delete the item', errors);
             },
         });
     }
@@ -48,7 +84,7 @@ const deleteItem = (id) => {
         </div>
 
         <!-- Add a New Item -->
-        <form @submit.prevent="submitForm" class="mt-2">
+        <form @submit.prevent="addItem" class="mt-2">
             <div class="flex items-center">
                 <InputLabel value="New Item:" class="mr-2"/>
                 <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mr-2" />
@@ -69,6 +105,11 @@ const deleteItem = (id) => {
                 class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
             >
                 {{ item.name }}
+
+                <!-- Toggle Bought Button -->
+                <SecondaryButton @click="toggleBought(item.id)" :color="item.is_bought ? 'yellow' : 'green'">
+                    {{ item.is_bought ? 'Undo' : 'Bought' }}
+                </SecondaryButton>
 
                 <!-- Delete Button -->
                 <SecondaryButton @click="deleteItem(item.id)" color="red">

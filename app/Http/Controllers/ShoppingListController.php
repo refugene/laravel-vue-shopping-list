@@ -24,16 +24,35 @@ class ShoppingListController extends Controller
             'name' => 'required|max:255|unique:shopping_items,name',
         ]);
 
-        ShoppingItem::create($request->only('name'));
+        $newItem = ShoppingItem::create($request->only('name'));
 
-        return redirect()->route('shoppingList.index')->with('success', 'Item added successfully!');
+        return inertia('ShoppingList/Index', [
+            'newItem' => $newItem,
+            'flash' => [
+                'success' => 'Item added successfully!',
+            ],
+        ]);
+    }
+
+    public function toggleBought($id)
+    {
+        $item = ShoppingItem::findOrFail($id);
+        $item->is_bought = !$item->is_bought;
+        $item->save();
+
+        return back()->with([
+            'success' => 'Item updated successfully!',
+        ]);
     }
 
     public function destroy($id)
     {
         $item = ShoppingItem::findOrFail($id);
         $item->delete();
-        return redirect()->route('shoppingList.index')->with('success', 'Item deleted successfully!');
+
+        return back()->with([
+            'success' => 'Item deleted successfully!'
+        ]);
     }
 
 }

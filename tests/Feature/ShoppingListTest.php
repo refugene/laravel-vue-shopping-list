@@ -35,6 +35,17 @@ it('cannot add a duplicate shopping list item', function () {
     $this->assertCount(1, ShoppingItem::where('name', 'apple')->get());
 });
 
+it('can mark a shopping list item as bought', function () {
+    // Arrange: Create an item in the database
+    $item = ShoppingItem::create(['name' => 'Test Item']);
+    // Act: Send a PATCH request to toggle the item's bought status
+    $response = $this->patch(route('shoppingList.toggleBought', $item->id));
+    // Assert: Check if the response redirects to the index page
+    $response->assertRedirect(route('shoppingList.index'));
+    // Assert: Check if the item's status has been updated in the database
+    $this->assertEquals(1, ShoppingItem::find($item->id)->is_bought);
+});
+
 it('can delete a shopping list item', function () {
     // Arrange: Create a shopping item in the database
     $item = ShoppingItem::create([
