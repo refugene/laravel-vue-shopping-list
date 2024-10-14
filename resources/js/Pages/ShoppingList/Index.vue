@@ -1,7 +1,7 @@
 <script setup>
 
 import { useForm } from '@inertiajs/vue3';
-import {ref} from "vue";
+import { computed, ref } from "vue";
 import Draggable from 'vuedraggable';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -19,7 +19,15 @@ const props = defineProps({
 // Use ref for reactivity
 const shoppingItems = ref([...props.shoppingItems]);
 
-console.log(shoppingItems);
+// Compute the total price in pounds
+const total = computed(() => {
+    return (shoppingItems.value.reduce((sum, item) => sum + item.price, 0) / 100).toFixed(2);
+});
+
+// Check if the total exceeds £100
+const totalExceedsLimit = computed(() => {
+    return total.value > 100;
+});
 
 const form = useForm({
     name: '',
@@ -152,5 +160,12 @@ const deleteItem = (id) => {
                 </li>
             </template>
         </draggable>
+        <!-- Alert if Total Exceeds £100 -->
+        <div v-if="totalExceedsLimit" class="bg-red-500 text-white font-bold px-4 py-3 mx-1 my-3 rounded">
+            The total exceeds £100!
+        </div>
+        <div class="my-10">
+            <h2 class="text-3xl">Total: £{{total}}</h2>
+        </div>
     </GuestLayout>
 </template>
