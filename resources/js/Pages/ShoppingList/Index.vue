@@ -104,17 +104,21 @@ const deleteItem = (id) => {
                 :key="item.id"
                 class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
             >
-                {{ item.name }}
+                <div class="flex-grow break-words min-w-0">
+                    {{ item.name }}
+                </div>
 
-                <!-- Toggle Bought Button -->
-                <SecondaryButton @click="toggleBought(item.id)" :color="item.is_bought ? 'yellow' : 'green'">
-                    {{ item.is_bought ? 'Undo' : 'Bought' }}
-                </SecondaryButton>
+                <div class="flex space-x-2">
+                    <!-- Toggle Bought Button -->
+                    <SecondaryButton @click="toggleBought(item.id)" :color="item.is_bought ? 'yellow' : 'green'">
+                        {{ item.is_bought ? 'Undo' : 'Bought' }}
+                    </SecondaryButton>
 
-                <!-- Delete Button -->
-                <SecondaryButton @click="deleteItem(item.id)" color="red">
-                    Delete
-                </SecondaryButton>
+                    <!-- Delete Button -->
+                    <SecondaryButton @click="deleteItem(item.id)" color="red">
+                        Delete
+                    </SecondaryButton>
+                </div>
             </li>
         </ul>
     </GuestLayout>
