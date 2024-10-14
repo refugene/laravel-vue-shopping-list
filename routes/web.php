@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/shopping-list', [ShoppingListController::class, 'index'])->name('shoppingList.index');
 Route::post('/shopping-list', [ShoppingListController::class, 'store'])->name('shoppingList.store');
 Route::patch('/shopping-list/{id}/toggle', [ShoppingListController::class, 'toggleBought'])->name('shoppingList.toggleBought');
+Route::patch('/shopping-list/update-sort-order', [ShoppingListController::class, 'updateSortOrder'])->name('shoppingList.updateSortOrder');
 Route::delete('/shopping-list/{id}', [ShoppingListController::class, 'destroy'])->name('shoppingList.destroy');
 
 require __DIR__.'/auth.php';

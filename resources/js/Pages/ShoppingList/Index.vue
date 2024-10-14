@@ -2,6 +2,7 @@
 
 import { useForm } from '@inertiajs/vue3';
 import {ref} from "vue";
+import Draggable from 'vuedraggable';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -16,7 +17,9 @@ const props = defineProps({
 });
 
 // Use ref for reactivity
-const shoppingItems = ref(props.shoppingItems);
+const shoppingItems = ref([...props.shoppingItems]);
+
+console.log(shoppingItems);
 
 const form = useForm({
     name: '',
@@ -54,6 +57,21 @@ const toggleBought = (id) => {
             }
         });
     }
+};
+
+// Reorder shopping items
+const updateSortOrder = (event) => {
+    const newOrder = shoppingItems.value;
+
+    axios.patch(route('shoppingList.updateSortOrder'), {
+        orderedItems: newOrder.map(item => item.id),
+    })
+        .then(response => {
+            console.log('Order updated successfully:', response.data);
+        })
+        .catch(error => {
+            console.error('Failed to update the order:', error.response.data);
+        });
 };
 
 // Delete shopping list item
@@ -98,28 +116,29 @@ const deleteItem = (id) => {
         </form>
 
         <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
-        <ul v-else>
-            <li
-                v-for="item in shoppingItems"
-                :key="item.id"
-                class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
-            >
-                <div class="flex-grow break-words min-w-0">
-                    {{ item.name }}
-                </div>
+        <draggable v-model="shoppingItems" item-key="id" tag="ul" @end="updateSortOrder" class="space-y-2">
+            <template #item="{ element }">
+                <li
+                    :key="element.id"
+                    class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
+                >
+                    <div class="flex-grow break-words min-w-0">
+                        {{ element.name }}
+                    </div>
 
-                <div class="flex space-x-2">
-                    <!-- Toggle Bought Button -->
-                    <SecondaryButton @click="toggleBought(item.id)" :color="item.is_bought ? 'yellow' : 'green'">
-                        {{ item.is_bought ? 'Undo' : 'Bought' }}
-                    </SecondaryButton>
+                    <div class="flex space-x-2">
+                        <!-- Toggle Bought Button -->
+                        <SecondaryButton @click="toggleBought(element.id)" :color="element.is_bought ? 'yellow' : 'green'">
+                            {{ element.is_bought ? 'Undo' : 'Bought' }}
+                        </SecondaryButton>
 
-                    <!-- Delete Button -->
-                    <SecondaryButton @click="deleteItem(item.id)" color="red">
-                        Delete
-                    </SecondaryButton>
-                </div>
-            </li>
-        </ul>
+                        <!-- Delete Button -->
+                        <SecondaryButton @click="deleteItem(element.id)" color="red">
+                            Delete
+                        </SecondaryButton>
+                    </div>
+                </li>
+            </template>
+        </draggable>
     </GuestLayout>
 </template>

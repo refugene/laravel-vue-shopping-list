@@ -8,5 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ShoppingItem extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'is_picked_up'];
+    protected $fillable = [
+        'name',
+        'is_picked_up',
+        'sort_order'
+    ];
 }
