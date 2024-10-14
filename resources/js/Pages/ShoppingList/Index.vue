@@ -40,20 +40,20 @@ const deleteItem = (id) => {
 
 <template>
     <GuestLayout>
-        <h1>Shopping List</h1>
+        <h1 class="text-4xl font-bold text-center my-4">Shopping List</h1>
 
         <!-- Success Message -->
-        <div v-if="flash && flash.success" class="bg-green-500 mt-2">
+        <div v-if="flash && flash.success" class="bg-green-500 text-white font-bold px-4 py-3 mx-1 rounded">
             {{ flash.success }}
         </div>
 
         <!-- Add a New Item -->
-        <form @submit.prevent="submitForm">
-            <div>
-                <InputLabel value="New Item" />
-                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" />
+        <form @submit.prevent="submitForm" class="mt-2">
+            <div class="flex items-center">
+                <InputLabel value="New Item:" class="mr-2"/>
+                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mr-2" />
                 <PrimaryButton :disabled="form.processing">
-                    Add Item
+                    Add
                 </PrimaryButton>
             </div>
 
@@ -66,7 +66,7 @@ const deleteItem = (id) => {
             <li
                 v-for="item in shoppingItems"
                 :key="item.id"
-                class="flex justify-between items-center rounded-full px-3 py-2 my-1 border border-blue-500"
+                class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
             >
                 {{ item.name }}
 
