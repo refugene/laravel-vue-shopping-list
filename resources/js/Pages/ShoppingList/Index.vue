@@ -1,6 +1,11 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import InputError from "@/Components/InputError.vue";
 import { Inertia } from '@inertiajs/inertia';
 
 // Props coming from the controller (shopping items and flash messages)
@@ -45,15 +50,15 @@ const deleteItem = (id) => {
         <!-- Add a New Item -->
         <form @submit.prevent="submitForm">
             <div>
-                <label for="name">New Item:</label>
-                <input v-model="form.name" type="text" name="name" id="name" required maxlength="255">
-                <button type="submit" :disabled="form.processing">Add Item</button>
+                <InputLabel value="New Item" />
+                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" />
+                <PrimaryButton :disabled="form.processing">
+                    Add Item
+                </PrimaryButton>
             </div>
 
             <!-- Validation Errors -->
-            <div v-if="form.errors.name" class="bg-red-500 mt-2">
-                {{ form.errors.name }}
-            </div>
+            <InputError :message="form.errors.name" />
         </form>
 
         <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
@@ -66,18 +71,10 @@ const deleteItem = (id) => {
                 {{ item.name }}
 
                 <!-- Delete Button -->
-                <button @click="deleteItem(item.id)" class="bg-red-500 text-white px-2 py-1 rounded-full">
+                <SecondaryButton @click="deleteItem(item.id)" color="red">
                     Delete
-                </button>
+                </SecondaryButton>
             </li>
         </ul>
     </GuestLayout>
 </template>
-
-<script>
-export default {
-    props: {
-        shoppingItems: Array,
-    },
-};
-</script>
