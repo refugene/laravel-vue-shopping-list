@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\ShoppingItem;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +14,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::factory()->createMany([
+            [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ],
+            [
+                'name' => 'Test User 2',
+                'email' => 'test2@example.com',
+            ],
         ]);
+
+        // Seed the ShoppingItem table with 10 items
+        $shoppingItems = [
+            'apple', 'banana', 'carrot', 'milk', 'bread', 'tomato', 'chicken', 'rice', 'eggs', 'butter'
+        ];
+        foreach ($shoppingItems as $item) {
+            ShoppingItem::factory()->create([
+                // Override the 'name' from the factory
+                'name' => $item,
+            ]);
+        }
     }
 }
