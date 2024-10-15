@@ -21,6 +21,7 @@ class ShoppingItemFactory extends Factory
             'is_bought' => $this->faker->randomElement([0, 1]),
             'sort_order' => $this->faker->numberBetween(1, 10),
             'price' => $this->faker->numberBetween(1, 1000),
+            'shopping_list_id' => 1,
         ];
     }
 }

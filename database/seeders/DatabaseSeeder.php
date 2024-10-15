@@ -14,9 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Eugene Getov',
-            'email' => 'e.getov@gmail.com',
+        User::factory()->createMany([
+            [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ],
+            [
+                'name' => 'Test User 2',
+                'email' => 'test2@example.com',
+            ],
         ]);
 
         // Seed the ShoppingItem table with 10 items

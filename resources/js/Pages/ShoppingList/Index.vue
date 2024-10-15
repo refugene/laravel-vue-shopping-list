@@ -1,9 +1,9 @@
 <script setup>
 
-import { useForm } from '@inertiajs/vue3';
+import {Head, useForm} from '@inertiajs/vue3';
 import { computed, ref } from "vue";
 import Draggable from 'vuedraggable';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -106,66 +106,70 @@ const deleteItem = (id) => {
 </script>
 
 <template>
-    <GuestLayout>
-        <h1 class="text-4xl font-bold text-center my-4">Shopping List</h1>
+    <Head title="Shopping List" />
 
-        <!-- Success Message -->
-        <div v-if="flash && flash.success" class="bg-green-500 text-white font-bold px-4 py-3 mx-1 rounded">
-            {{ flash.success }}
-        </div>
+    <AuthenticatedLayout>
+        <div class="mx-auto max-w-xl">
+            <h1 class="text-4xl font-bold text-center my-4">Shopping List</h1>
 
-        <!-- Add a New Item -->
-        <form @submit.prevent="addItem" class="mt-2">
-            <div class="flex flex-col">
-                <h2 class="text-xl font-bold">New Item</h2>
-                <InputLabel value="Name:" />
-                <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mb-2" />
-
-                <!-- Price Input in Pounds -->
-                <InputLabel value="Price (£):" />
-                <TextInput v-model="form.priceInPounds" :modelValue="form.priceInPounds.toString()" name="price" id="price" required type="number" min="0" step="0.01" class="mb-2" />
-
-                <PrimaryButton :disabled="form.processing" class="my-2 w-1/4 justify-center">
-                    Add
-                </PrimaryButton>
+            <!-- Success Message -->
+            <div v-if="flash && flash.success" class="bg-green-500 text-white font-bold px-4 py-3 mx-1 rounded">
+                {{ flash.success }}
             </div>
 
-            <!-- Validation Errors -->
-            <InputError :message="form.errors.name" />
-            <InputError :message="form.errors.price" />
-        </form>
+            <!-- Add a New Item -->
+            <form @submit.prevent="addItem" class="mt-2">
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-bold">New Item</h2>
+                    <InputLabel value="Name:" />
+                    <TextInput v-model="form.name" name="name" id="name" required maxlength="255" class="mb-2" />
 
-        <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
-        <draggable v-model="shoppingItems" item-key="id" tag="ul" @end="updateSortOrder" class="space-y-2">
-            <template #item="{ element }">
-                <li
-                    :key="element.id"
-                    class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
-                >
-                    <div class="flex-grow break-words min-w-0">
-                        {{ element.name }} - £{{ (element.price / 100).toFixed(2) }}
-                    </div>
+                    <!-- Price Input in Pounds -->
+                    <InputLabel value="Price (£):" />
+                    <TextInput v-model="form.priceInPounds" :modelValue="form.priceInPounds.toString()" name="price" id="price" required type="number" min="0" step="0.01" class="mb-2" />
 
-                    <div class="flex space-x-2">
-                        <!-- Toggle Bought Button -->
-                        <SecondaryButton @click="toggleBought(element.id)" :color="element.is_bought ? 'yellow' : 'green'">
-                            {{ element.is_bought ? 'Undo' : 'Bought' }}
-                        </SecondaryButton>
+                    <PrimaryButton :disabled="form.processing" class="my-2 w-1/4 justify-center">
+                        Add
+                    </PrimaryButton>
+                </div>
 
-                        <!-- Delete Button -->
-                        <SecondaryButton @click="deleteItem(element.id)" color="red">
-                            Delete
-                        </SecondaryButton>
-                    </div>
-                </li>
-            </template>
-        </draggable>
-        <!-- Alert if Total Exceeds £100 -->
-        <div v-if="totalExceedsLimit" class="bg-red-500 text-white font-bold px-4 py-3 mx-1 my-3 rounded">
-            The total exceeds £100!
+                <!-- Validation Errors -->
+                <InputError :message="form.errors.name" />
+                <InputError :message="form.errors.price" />
+            </form>
+
+            <p v-if="shoppingItems.length === 0">No items in the shopping list.</p>
+            <draggable v-model="shoppingItems" item-key="id" tag="ul" @end="updateSortOrder" class="space-y-2">
+                <template #item="{ element }">
+                    <li
+                        :key="element.id"
+                        class="flex justify-between items-center rounded-full px-3 py-2 my-2 border border-blue-500"
+                    >
+                        <div class="flex-grow break-words min-w-0">
+                            {{ element.name }} - £{{ (element.price / 100).toFixed(2) }}
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <!-- Toggle Bought Button -->
+                            <SecondaryButton @click="toggleBought(element.id)" :color="element.is_bought ? 'yellow' : 'green'">
+                                {{ element.is_bought ? 'Undo' : 'Bought' }}
+                            </SecondaryButton>
+
+                            <!-- Delete Button -->
+                            <SecondaryButton @click="deleteItem(element.id)" color="red">
+                                Delete
+                            </SecondaryButton>
+                        </div>
+                    </li>
+                </template>
+            </draggable>
+            <!-- Alert if Total Exceeds £100 -->
+            <div v-if="totalExceedsLimit" class="bg-red-500 text-white font-bold px-4 py-3 mx-1 my-3 rounded">
+                The total exceeds £100!
+            </div>
+            <div class="my-10">
+                <h2 class="text-3xl">Total: £{{total}}</h2>
+            </div>
         </div>
-        <div class="my-10">
-            <h2 class="text-3xl">Total: £{{total}}</h2>
-        </div>
-    </GuestLayout>
+    </AuthenticatedLayout>
 </template>

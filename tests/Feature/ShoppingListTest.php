@@ -1,13 +1,27 @@
 <?php
 
+use App\Models\User;
+use App\Models\ShoppingList;
 use App\Models\ShoppingItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('can add a shopping list item', function () {
-    // Arrange: Create a new item data
-    $itemData = ['name' => 'apple'];
+beforeEach(function () {
+    // Create a user and authenticate before each test
+    $this->user = User::factory()->create();
+    $this->actingAs($this->user);
+
+    // Get the default shopping list for the user
+    $this->shoppingList = ShoppingList::where('user_id', $this->user->id)->firstOrFail();
+});
+
+it('can add a shopping list item with a price', function () {
+    // Arrange: Create a new item data with a name and price (in pence)
+    $itemData = [
+        'name' => 'apple',
+        'price' => 300,
+    ];
 
     // Act: Send a POST request to add the item
     $response = $this->post(route('shoppingList.store'), $itemData);
@@ -15,18 +29,22 @@ it('can add a shopping list item', function () {
     // Assert: Check if the response was successful (200 OK)
     $response->assertStatus(200);
 
-    // Assert: Check if the item exists in the database
+    // Assert: Check if the item exists in the database with the correct name and price
     $this->assertDatabaseHas('shopping_items', [
-        'name' => 'apple'
+        'name' => 'apple',
+        'price' => 300,
     ]);
 });
 
 it('cannot add a duplicate shopping list item', function () {
     // Arrange: Create a shopping list item in the database
-    ShoppingItem::create(['name' => 'apple']);
+    $this->shoppingList->shoppingItems()->create([
+        'name' => 'apple',
+        'price' => 300
+    ]);
 
     // Act: Try to add the same item again
-    $response = $this->post(route('shoppingList.store'), ['name' => 'apple']);
+    $response = $this->post(route('shoppingList.store'), ['name' => 'apple', 'price' => 300]);
 
     // Assert: Check that the request was redirected back with an error
     $response->assertSessionHasErrors();
@@ -37,7 +55,10 @@ it('cannot add a duplicate shopping list item', function () {
 
 it('can mark a shopping list item as bought', function () {
     // Arrange: Create an item in the database
-    $item = ShoppingItem::create(['name' => 'Test Item']);
+    $item = $this->shoppingList->shoppingItems()->create([
+        'name' => 'Test Item',
+        'price' => 300
+    ]);
 
     // Act: Send a PATCH request to toggle the item's bought status
     $response = $this->patch(route('shoppingList.toggleBought', $item->id));
@@ -51,9 +72,9 @@ it('can mark a shopping list item as bought', function () {
 
 it('can update the sort order of shopping items', function () {
     // Arrange: Create some shopping items with initial sort orders
-    $item1 = ShoppingItem::create(['name' => 'Item 1', 'sort_order' => 0]);
-    $item2 = ShoppingItem::create(['name' => 'Item 2', 'sort_order' => 1]);
-    $item3 = ShoppingItem::create(['name' => 'Item 3', 'sort_order' => 2]);
+    $item1 = $this->shoppingList->shoppingItems()->create(['name' => 'Item 1', 'sort_order' => 0]);
+    $item2 = $this->shoppingList->shoppingItems()->create(['name' => 'Item 2', 'sort_order' => 1]);
+    $item3 = $this->shoppingList->shoppingItems()->create(['name' => 'Item 3', 'sort_order' => 2]);
 
     // Act: Define the new order of items (reverse the order in this case)
     $newOrder = [$item3->id, $item1->id, $item2->id];
@@ -85,7 +106,7 @@ it('can update the sort order of shopping items', function () {
 
 it('can delete a shopping list item', function () {
     // Arrange: Create a shopping item in the database
-    $item = ShoppingItem::create([
+    $item = $this->shoppingList->shoppingItems()->create([
         'name' => 'Test Item'
     ]);
     // Act: Send a DELETE request to delete the item

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShoppingList;
 use App\Models\ShoppingItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,8 +12,12 @@ class ShoppingListController extends Controller
 {
     public function index()
     {
+        // Allowing one shopping list for now
+        $shoppingList = ShoppingList::where('user_id', auth()->id())->firstOrFail();
+        $shoppingItems = $shoppingList->shoppingItems()->orderBy('sort_order', 'asc')->get();
+
         return Inertia::render('ShoppingList/Index', [
-            'shoppingItems' => ShoppingItem::orderBy('sort_order', 'asc')->get(),
+            'shoppingItems' => $shoppingItems,
             'flash' => [
                 'success' => session()->get('success'),
             ],
@@ -26,7 +31,12 @@ class ShoppingListController extends Controller
             'price' => 'required|integer|min:0'
         ]);
 
-        $newItem = ShoppingItem::create($request->only('name', 'price'));
+        $shoppingList = ShoppingList::where('user_id', auth()->id())->firstOrFail();
+
+        $newItem = $shoppingList->shoppingItems()->create([
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+        ]);
 
         return inertia('ShoppingList/Index', [
             'newItem' => $newItem,
@@ -38,7 +48,9 @@ class ShoppingListController extends Controller
 
     public function toggleBought($id)
     {
-        $item = ShoppingItem::findOrFail($id);
+        $item = ShoppingItem::whereHas('shoppingList', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->findOrFail($id);
         $item->is_bought = !$item->is_bought;
         $item->save();
 
@@ -55,6 +67,8 @@ class ShoppingListController extends Controller
             'orderedItems.*' => 'integer|min:0',
         ]);
 
+        $shoppingList = ShoppingList::where('user_id', auth()->id())->firstOrFail();
+
         // Array of item IDs in new order
         $orderedItems = $request->input('orderedItems');
 
@@ -70,15 +84,19 @@ class ShoppingListController extends Controller
             $ids[] = $itemId;
         }
 
-        $caseSql = implode(' ', $caseStatements);
-        DB::update("UPDATE shopping_items SET sort_order = CASE {$caseSql} END WHERE id IN (" . implode(',', $ids) . ")");
+        // Ensure items belong to the user's shopping list
+        ShoppingItem::whereIn('id', $ids)->where('shopping_list_id', $shoppingList->id)->update([
+            'sort_order' => DB::raw("(CASE " . implode(' ', $caseStatements) . " END)")
+        ]);
 
         return response()->json(['success' => true]);
     }
 
     public function destroy($id)
     {
-        $item = ShoppingItem::findOrFail($id);
+        $item = ShoppingItem::whereHas('shoppingList', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->findOrFail($id);
         $item->delete();
 
         return back()->with([

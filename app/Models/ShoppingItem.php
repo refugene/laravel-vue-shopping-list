@@ -12,6 +12,11 @@ class ShoppingItem extends Model
         'name',
         'is_picked_up',
         'sort_order',
-        'price'
+        'price',
     ];
+
+    public function shoppingList()
+    {
+        return $this->belongsTo(ShoppingList::class);
+    }
 }
