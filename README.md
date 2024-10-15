@@ -10,6 +10,7 @@
 ## About the Shopping List App
 This app provides a basic shopping list built with Laravel and Vue.js using Inertia.js
 When seeding the database as described in [setup](#setup), 2 test users are created each with 10 items in their shopping list
+A diff of all code changes to the default Laravel and Inertia with Vue install can be seen [here](https://github.com/refugene/laravel-vue-shopping-list/pull/1)
 
 A logged in user can:
 - add a new item with a price to their shopping list
